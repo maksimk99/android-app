@@ -41,4 +41,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
+    <TextView
+        android:id="@+id/errorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="32sp"
+        android:visibility="invisible"
+        android:text="@string/error_message"
+        android:textColor="@color/errorMessage"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

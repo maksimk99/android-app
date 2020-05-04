@@ -1,7 +1,6 @@
 package com.brstu.lab.android
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.*
-import java.net.ConnectException
-import java.net.URL
 
 class MainFragment : Fragment(), ListAdapter.OnItemClickListener {
 
@@ -44,14 +41,21 @@ class MainFragment : Fragment(), ListAdapter.OnItemClickListener {
         buttonLoad.setOnClickListener {
             progressBar.visibility = View.VISIBLE
             GlobalScope.launch {
-                val result = doWork(omdbApi, movieDao)
+                val result = doWork(omdbApi!!, movieDao)
                 val listOfMovies = result.listOfCarSales
                 if (listOfMovies != null) {
-                    listAdapter?.listOfCarSales = listOfMovies
-                    movieDao.addCarSales(listOfMovies)
-                    withContext(Dispatchers.Main) {
-                        listAdapter?.notifyDataSetChanged()
-                        progressBar.visibility = View.GONE
+                    if (listOfMovies.isNotEmpty()) {
+                        listAdapter?.listOfCarSales = listOfMovies
+                        movieDao.addCarSales(listOfMovies)
+                        withContext(Dispatchers.Main) {
+                            errorMessage.visibility = View.INVISIBLE
+                            progressBar.visibility = View.GONE
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            progressBar.visibility = View.GONE
+                            errorMessage.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -66,15 +70,13 @@ class MainFragment : Fragment(), ListAdapter.OnItemClickListener {
         (activity as? MainActivity)?.onMovieInfoClick(carSale)
     }
 
-    suspend fun doWork(omdbApi: SearchApi?, movieDao: CarSaleDao): SearchResult = coroutineScope {
+    suspend fun doWork(omdbApi: SearchApi, movieDao: CarSaleDao): SearchResult = coroutineScope  {
         async {
-            var result: SearchResult
-            try {
-                result = omdbApi?.getCarSaleList() ?: SearchResult(movieDao.getAllCarSales())
-            } catch (e: ConnectException) {
-                result = SearchResult(movieDao.getAllCarSales())
+            return@async try {
+                omdbApi.getCarSaleList()
+            } catch (ex: Exception) {
+                SearchResult(movieDao.getAllCarSales())
             }
-            return@async result
         }.await()
     }
 }
