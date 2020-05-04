@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class TestApplication : Application() {
 
-    val IP_ADDRESS = "192.168.43.125"
+    val BASE_URL = "https://android-lab-server.herokuapp.com"
     var searchService: SearchApi? = null
 
     override fun onCreate() {
@@ -22,7 +22,7 @@ class TestApplication : Application() {
 
         val retrofit = Retrofit.Builder()
             .client(httpClient.build())
-            .baseUrl("http://$IP_ADDRESS:9999")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         searchService = retrofit.create(SearchApi::class.java)
